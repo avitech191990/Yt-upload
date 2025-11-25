@@ -1,0 +1,43 @@
+name: Scheduled Drive->YouTube Upload
+
+on:
+  schedule:
+    - cron: '*/2 * * * *'  # every 2 minutes UTC
+  workflow_dispatch:       # manual trigger
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build project
+        run: ./mvnw clean package --batch-mode
+
+      - name: Run Drive->YouTube uploader
+        env:
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
+          CONTENT_FOLDER_ID: ${{ secrets.CONTENT_FOLDER_ID }}
+          POSTED_FOLDER_ID: ${{ secrets.POSTED_FOLDER_ID }}
+          APPLICATION_NAME: "YtUploadApplication-AviTech"
+          VIDEO_TITLE: "My Auto Short"
+          VIDEO_DESC: "Uploaded automatically"
+          VIDEO_TAGS: "quotes,shorts,motivation"
+        run: java -jar target/your-app-name.jar
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: uploader-logs
+          path: logs/uploader.log
