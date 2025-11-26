@@ -36,7 +36,7 @@ jobs:
           VIDEO_TITLE: "My Auto Short"
           VIDEO_DESC: "Uploaded automatically"
           VIDEO_TAGS: "quotes,shorts,motivation"
-        run: java -jar target/your-app-name.jar
+        run: java -jar target/yt-upload-0.0.1-SNAPSHOT.jar
 
       - name: Upload logs
         if: always()
