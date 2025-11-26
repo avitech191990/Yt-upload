@@ -57,7 +57,7 @@ jobs:
                       
                       Stay curious. Stay vibing. Stay FACTS! ⚡
                       #FactsVibe"
-          VIDEO_TAGS: "viral facts, trending facts, mind blowing facts, crazy facts, unbelievable facts, wow facts, facts shorts, YouTube shorts facts, viral shorts, trending shorts, random facts, fun facts, interesting facts, hook facts, amazing facts, shocking facts, weird facts, viral videos 2025, top facts, fact vlog, fact channel, daily facts, knowledge shorts, surprising facts, fast facts, unknown facts, funny facts, hilarious facts, crazy funny facts, fun shorts, comedy facts, weird funny facts, facts that make you laugh, silly facts, unbelievable funny facts, joke facts, fun vibe, entertaining facts, funny trivia, random funny facts, viral funny shorts, laugh facts, humor shorts, strange funny facts, funny wow facts, psychology facts, science facts, brain facts, mind tricks, human behavior facts, smart facts, genius facts, knowledge facts, educational facts, learning shorts, real science facts, shocking brain facts, school facts, unbelievable psychology facts, human mind facts, thinking facts, intelligence facts, science shorts, neuroscience facts, psychological truth, fact learning"
+          VIDEO_TAGS: "facts, interesting facts, amazing facts, unbelievable facts, mind blowing facts, shocking facts, fact shorts"
         run: java -jar target/yt-upload-0.0.1-SNAPSHOT.jar
 
       - name: Upload logs
