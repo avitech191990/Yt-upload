@@ -1,0 +1,62 @@
+= Service Overview
+
+This service automatically downloads video files from a specified Google Drive folder and uploads them to a YouTube channel.
+
+* After a successful upload, the service moves the source file in Drive to a configured destination folder.
+* If an upload fails, the error is logged and the application continues running; the source file is deleted to prevent reprocessing.
+
+
+OAuth2 authentication is used for both Google Drive and YouTube APIs. Ensure that the necessary credentials are set up in the application configuration.
+== Configuration
+The application requires the following configuration parameters:
+* `drive.sourceFolderId`: The ID of the Google Drive folder to monitor for new video files.
+* `drive.destinationFolderId`: The ID of the Google Drive folder where files will be moved after processing.
+* `youtube.channelId`: The ID of the YouTube channel where videos will be uploaded.
+* `oauth2.clientId`: The OAuth2 client ID for authentication.
+* `oauth2.clientSecret`: The OAuth2 client secret for authentication.
+* `oauth2.redirectUri`: The OAuth2 redirect URI.
+== Usage
+1. Set up OAuth2 credentials for Google Drive and YouTube APIs.
+2. Configure the application with the required parameters.
+3. Run the application to start monitoring the specified Google Drive folder for new video files.
+4. The application will automatically upload new video files to the specified YouTube channel and move processed files to the destination folder.
+== Error Handling
+* Upload failures are logged with error details.
+* The application continues processing other files even if some uploads fail.
+* Source files are deleted after processing to avoid reprocessing.
+
+--IMPORTANT--
+#Getting new refresh token
+To obtain a new refresh token, follow these steps:
+1. Open a web browser and navigate to the following URL, replacing `YOUR_CLIENT_ID`, `YOUR_REDIRECT_URI`, and `YOUR_SCOPES` with your actual OAuth2 client ID, redirect URI, and required scopes:
+```https://accounts.google.com/o/oauth2/v2/auth?
+    client_id=YOUR_CLIENT_ID
+    &redirect_uri=http://localhost:8080/callback (YOUR_REDIRECT_URI)
+    &response_type=code
+    &scope=https://www.googleapis.com/auth/youtube.upload%20https://www.googleapis.com/auth/youtube (YOUR_SCOPES)
+    &access_type=offline
+    &prompt=consent
+
+You will be prompted to log in to your Google account and authorize the application to access your YouTube and Google Drive data.
+2. After granting permission, you will be redirected to the specified redirect URI with an authorization code that is in browser URL as a query parameter named `code`.
+3. Copy the authorization code from the URL.
+4. Exchange the authorization code for an access token and refresh token by making a POST request to the following URL:
+```https://oauth2.googleapis.com/token
+With the following parameters in the request body:
+- `code`: The authorization code you obtained in step 3.
+- `client_id`: Your OAuth2 client ID.
+- `client_secret`: Your OAuth2 client secret.
+- `redirect_uri`: Your OAuth2 redirect URI.
+- `grant_type`: Set this to `authorization_code`.
+5. The response will contain an access token and a refresh token. Save the refresh token securely, as it will be used to obtain new access tokens when the current one expires.
+6. Update your application configuration with the new refresh token.
+Make sure to handle the tokens securely and avoid exposing them in public repositories or logs.
+
+--IMPORTANT--
+curl --location 'https://oauth2.googleapis.com/token' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'code=code' \
+--data-urlencode 'client_id=channelId' \
+--data-urlencode 'client_secret=client_secret' \
+--data-urlencode 'redirect_uri=http://localhost:8080/callback' \
+--data-urlencode 'grant_type=authorization_code'
