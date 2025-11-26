@@ -109,13 +109,6 @@ public class YtUploadApplication {
 		}
 		logger.info("Downloaded file to {}", localFile.getAbsolutePath());
 
-		// Move file to posted folder
-		drive.files().update(selectedFile.getId(), null)
-				.setAddParents(postedFolderId)
-				.setRemoveParents(contentFolderId)
-				.execute();
-		logger.info("Moved file to posted folder in Drive.");
-
 		// Build YouTube client
 		YouTube youtube = new YouTube.Builder(HTTP_TRANSPORT,
 				JSON_FACTORY,
@@ -152,10 +145,33 @@ public class YtUploadApplication {
 		uploader.setProgressListener((MediaHttpUploaderProgressListener) u ->
 				logger.info("Upload state: {} progress: {}", u.getUploadState(), u.getProgress()));
 
-		Video returnedVideo = request.execute();
-		logger.info("Upload completed! Video ID: {}", returnedVideo.getId());
+        boolean uploadSuccess = false;
 
-		// Delete local file
+        try {
+            // Upload to YouTube
+            Video returnedVideo = request.execute();
+            logger.info("Upload completed! Video ID: {}", returnedVideo.getId());
+            uploadSuccess = true;
+
+        } catch (Exception e) {
+            logger.error("Upload failed! File will NOT be moved.", e);
+        }
+
+        if (uploadSuccess) {
+            try {
+                // Move file in Drive only after successful upload
+                drive.files().update(selectedFile.getId(), null)
+                        .setAddParents(postedFolderId)
+                        .setRemoveParents(contentFolderId)
+                        .execute();
+                logger.info("Moved file to posted folder in Drive.");
+
+            } catch (Exception e) {
+                logger.error("Failed to move file in Drive after successful upload.", e);
+            }
+        }
+
+        // Delete local file
 		if (localFile.exists() && localFile.delete()) {
 			logger.info("Deleted local file: {}", localFile.getAbsolutePath());
 		} else {

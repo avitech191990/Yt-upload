@@ -40,9 +40,24 @@ jobs:
           CONTENT_FOLDER_ID: ${{ secrets.CONTENT_FOLDER_ID }}
           POSTED_FOLDER_ID: ${{ secrets.POSTED_FOLDER_ID }}
           APPLICATION_NAME: "YtUploadApplication-AviTech"
-          VIDEO_TITLE: "My Auto Short"
-          VIDEO_DESC: "Uploaded automatically"
-          VIDEO_TAGS: "quotes,shorts,motivation"
+          VIDEO_TITLE: "Facts That Will Make You Question Everything 😳| @Factvibes19"
+          VIDEO_DESC: "Welcome to FactsVibe, where every second comes with a mind-blowing fact you never knew you needed!
+                      Today’s video is packed with weird, shocking, funny, and unbelievable facts that will keep you hooked till the very end.
+
+                      🔥 Don’t skip — the last fact will blow your mind!
+                      🔥 Comment “FACTS!” if you want a Part 2.
+                      🔥 Subscribe for daily viral facts!
+                      
+                      What’s inside this video?
+                      ✔ Facts that sound fake but are true
+                      ✔ Crazy science & psychology facts
+                      ✔ Funny facts to make you laugh
+                      ✔ Weird real-life facts you’ve never heard before
+                      ✔ Quick knowledge boosters for your day
+                      
+                      Stay curious. Stay vibing. Stay FACTS! ⚡
+                      #FactsVibe"
+          VIDEO_TAGS: "viral facts, trending facts, mind blowing facts, crazy facts, unbelievable facts, wow facts, facts shorts, YouTube shorts facts, viral shorts, trending shorts, random facts, fun facts, interesting facts, hook facts, amazing facts, shocking facts, weird facts, viral videos 2025, top facts, fact vlog, fact channel, daily facts, knowledge shorts, surprising facts, fast facts, unknown facts, funny facts, hilarious facts, crazy funny facts, fun shorts, comedy facts, weird funny facts, facts that make you laugh, silly facts, unbelievable funny facts, joke facts, fun vibe, entertaining facts, funny trivia, random funny facts, viral funny shorts, laugh facts, humor shorts, strange funny facts, funny wow facts, psychology facts, science facts, brain facts, mind tricks, human behavior facts, smart facts, genius facts, knowledge facts, educational facts, learning shorts, real science facts, shocking brain facts, school facts, unbelievable psychology facts, human mind facts, thinking facts, intelligence facts, science shorts, neuroscience facts, psychological truth, fact learning"
         run: java -jar target/yt-upload-0.0.1-SNAPSHOT.jar
 
       - name: Upload logs
