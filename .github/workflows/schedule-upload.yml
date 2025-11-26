@@ -2,8 +2,8 @@ name: Scheduled Drive->YouTube Upload
 
 on:
   schedule:
-    - cron: '*/2 * * * *'  # every 2 minutes UTC
-  workflow_dispatch:       # manual trigger
+    - cron: '*/2 * * * *'
+  workflow_dispatch:
 
 jobs:
   upload:
@@ -13,6 +13,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Make mvnw executable
+        run: chmod +x mvnw
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -21,9 +24,6 @@ jobs:
 
       - name: Build project
         run: ./mvnw clean package --batch-mode
-
-      - name: Make mvnw executable
-        run: chmod +x mvnw
 
       - name: Run Drive->YouTube uploader
         env:
