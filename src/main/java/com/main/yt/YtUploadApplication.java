@@ -19,9 +19,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -35,149 +37,216 @@ public class YtUploadApplication {
 	private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 	private static final NetHttpTransport HTTP_TRANSPORT = new NetHttpTransport();
 
+    // Channel-specific envs
+    private static String clientId;
+    private static String clientSecret;
+    private static String refreshToken;
+    private static String contentFolderId;
+    private static String postedFolderId;
+    private static String applicationName;
+    private static String videoTitle;
+    private static String videoDesc;
+    private static String videoTags;
+
 	public static void main(String[] args) throws Exception {
 
 		SpringApplication.run(YtUploadApplication.class, args);
-		new YtUploadApplication().runUploader();
+		new YtUploadApplication().runUploader(args);
 		// For local scheduled run, uncomment below:
 		//SpringApplication.run(YtUploadApplication.class, args);
 	}
 
 	// Extracted uploader logic
-	public void runUploader() throws Exception {
+	public void runUploader(String[] args) throws Exception {
 
-		logger.info("=== Starting Drive -> YouTube Upload Task ===");
+        // -------------------------------
+        // 1. Read channel argument
+        // -------------------------------
+        String channel = "1"; // default
 
-		String clientId = System.getenv("CLIENT_ID");
-		String clientSecret = System.getenv("CLIENT_SECRET");
-		String refreshToken = System.getenv("REFRESH_TOKEN");
-		String contentFolderId = System.getenv("CONTENT_FOLDER_ID");
-		String postedFolderId = System.getenv("POSTED_FOLDER_ID");
-		String applicationName = System.getenv("APPLICATION_NAME");
-		String title = System.getenv("VIDEO_TITLE");
-		String description = System.getenv("VIDEO_DESC");
-		String tagsCsv = System.getenv("VIDEO_TAGS");
+        for (String arg : args) {
+            if (arg.startsWith("--channel=")) {
+                channel = arg.substring("--channel=".length());
+            }
+        }
 
-		if (clientId == null || clientSecret == null || refreshToken == null
-				|| contentFolderId == null || postedFolderId == null || applicationName == null) {
-			logger.error("Missing required environment variables. Exiting...");
-			return;
-		}
+        logger.info("=================================================");
+        logger.info("      Upload Task Starting for CHANNEL: " + channel);
+        logger.info("=================================================");
 
-		// Build Google credential
-		GoogleCredential credential = new GoogleCredential.Builder()
-				.setTransport(HTTP_TRANSPORT)
-				.setJsonFactory(JSON_FACTORY)
-				.setClientSecrets(clientId, clientSecret)
-				.build()
-				.setRefreshToken(refreshToken);
-		credential.refreshToken();
-		logger.info("Google credentials initialized.");
+        // Load env for selected channel
+        loadEnv(channel);
 
-		// Build Drive client
-		Drive drive = new Drive.Builder(HTTP_TRANSPORT,
-				JSON_FACTORY,
-				credential)
-				.setApplicationName(applicationName)
-				.build();
+        // Validate env
+        if (!validateEnv()) {
+            logger.info("❌ Missing environment variables. Exiting...");
+            return;
+        }
 
-		// List video files in content folder
-		String query = String.format("'%s' in parents and mimeType contains 'video/' and trashed = false",
-				contentFolderId);
-		FileList fileList = drive.files().list()
-				.setQ(query)
-				.setFields("files(id,name)")
-				.execute();
+        try {
+            startUploadProcess();
+        } catch (Exception e) {
+            logger.error("❌ Error during upload process: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
-		List<File> files = fileList.getFiles();
-		if (files == null || files.isEmpty()) {
-			logger.info("No files found in content folder. Exiting...");
-			return;
-		}
+    // ==========================================================
+    // Load Channel-Specific Environment Variables
+    // ==========================================================
+    private static void loadEnv(String channel) {
 
-		// Pick random file
-		File selectedFile = files.get(new Random().nextInt(files.size()));
-		logger.info("Selected file: {}", selectedFile.getName());
+        if (channel.equals("1")) {
+            clientId = System.getenv("YT_CLIENT_ID_CH1");
+            clientSecret = System.getenv("YT_CLIENT_SECRET_CH1");
+            refreshToken = System.getenv("YT_REFRESH_TOKEN_CH1");
+            contentFolderId = System.getenv("CONTENT_FOLDER_ID_CH1");
+            postedFolderId = System.getenv("POSTED_FOLDER_ID_CH1");
+            videoTitle = System.getenv("VIDEO_TITLE_CH1");
+            videoDesc = System.getenv("VIDEO_DESC_CH1");
+            videoTags = System.getenv("VIDEO_TAGS_CH1");
+            applicationName = "YT-Uploader-Factvibes19";
 
-		// Download to local folder
-		String localDir = Paths.get(System.getProperty("user.dir"), "downloads").toString();
-		java.io.File localFile = Paths.get(localDir, selectedFile.getName()).toFile();
-		localFile.getParentFile().mkdirs();
+        } else {
+            clientId = System.getenv("YT_CLIENT_ID_CH2");
+            clientSecret = System.getenv("YT_CLIENT_SECRET_CH2");
+            refreshToken = System.getenv("YT_REFRESH_TOKEN_CH2");
+            contentFolderId = System.getenv("CONTENT_FOLDER_ID_CH2");
+            postedFolderId = System.getenv("POSTED_FOLDER_ID_CH2");
+            videoTitle = System.getenv("VIDEO_TITLE_CH2");
+            videoDesc = System.getenv("VIDEO_DESC_CH2");
+            videoTags = System.getenv("VIDEO_TAGS_CH2");
+            applicationName = "YT-Uploader-AMotivations19";
+        }
 
-		try (OutputStream out = new FileOutputStream(localFile)) {
-			drive.files().get(selectedFile.getId()).executeMediaAndDownloadTo(out);
-		}
-		logger.info("Downloaded file to {}", localFile.getAbsolutePath());
+        logger.info("Loaded env for channel: " + channel);
+    }
 
-		// Build YouTube client
-		YouTube youtube = new YouTube.Builder(HTTP_TRANSPORT,
-				JSON_FACTORY,
-				credential)
-				.setApplicationName(applicationName)
-				.build();
+    // ==========================================================
+    // Validate env
+    // ==========================================================
+    private static boolean validateEnv() {
+        return clientId != null &&
+                clientSecret != null &&
+                refreshToken != null &&
+                contentFolderId != null &&
+                postedFolderId != null;
+    }
 
-		VideoSnippet snippet = new VideoSnippet();
-		snippet.setTitle(title != null ? title : "Auto short");
-		snippet.setDescription(description != null ? description : "");
-		if (tagsCsv != null && !tagsCsv.isEmpty()) {
-			snippet.setTags(List.of(tagsCsv.split(",")));
-		}
-		snippet.setCategoryId("22");
+    // ==========================================================
+    // Main upload process
+    // ==========================================================
+    private static void startUploadProcess() throws Exception {
 
-		VideoStatus status = new VideoStatus();
-		status.setPrivacyStatus("public");
+        // Build Google credential
+        GoogleCredential credential = new GoogleCredential.Builder()
+                .setTransport(HTTP_TRANSPORT)
+                .setJsonFactory(JSON_FACTORY)
+                .setClientSecrets(clientId, clientSecret)
+                .build()
+                .setRefreshToken(refreshToken);
 
-		Video videoMetadata = new Video();
-		videoMetadata.setSnippet(snippet);
-		videoMetadata.setStatus(status);
+        credential.refreshToken();
+        logger.info("✔ Google credentials initialized.");
 
-		InputStreamContent mediaContent = new InputStreamContent(
-				"video/*",
-				new java.io.FileInputStream(localFile)
-		);
-		mediaContent.setLength(localFile.length());
+        // Create Drive client
+        Drive drive = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
+                .setApplicationName(applicationName)
+                .build();
 
-		YouTube.Videos.Insert request = youtube.videos()
-				.insert("snippet,status", videoMetadata, mediaContent);
+        // Search videos in folder
+        String query = String.format("'%s' in parents and mimeType contains 'video/' and trashed = false", contentFolderId);
 
-		MediaHttpUploader uploader = request.getMediaHttpUploader();
-		uploader.setDirectUploadEnabled(false);
-		uploader.setProgressListener((MediaHttpUploaderProgressListener) u ->
-				logger.info("Upload state: {} progress: {}", u.getUploadState(), u.getProgress()));
+        FileList fileList = drive.files().list()
+                .setQ(query)
+                .setFields("files(id,name)")
+                .execute();
+
+        List<File> files = fileList.getFiles();
+
+        if (files == null || files.isEmpty()) {
+            logger.info("⚠ No videos found. Exiting...");
+            return;
+        }
+
+        // Pick random file
+        File selectedFile = files.get(new Random().nextInt(files.size()));
+        logger.info("🎬 Selected: " + selectedFile.getName());
+
+        // Download file
+        String localDir = Paths.get(System.getProperty("user.dir"), "downloads").toString();
+        java.io.File localFile = Paths.get(localDir, selectedFile.getName()).toFile();
+        localFile.getParentFile().mkdirs();
+
+        try (OutputStream out = new FileOutputStream(localFile)) {
+            drive.files().get(selectedFile.getId()).executeMediaAndDownloadTo(out);
+        }
+
+        logger.info("⬇ Downloaded: " + localFile.getAbsolutePath());
+
+        // YouTube client
+        YouTube youtube = new YouTube.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
+                .setApplicationName(applicationName)
+                .build();
+
+        // Metadata
+        VideoSnippet snippet = new VideoSnippet();
+        snippet.setTitle(videoTitle);
+        snippet.setDescription(videoDesc);
+        snippet.setCategoryId("22");
+
+        if (videoTags != null && !videoTags.isEmpty()) {
+            snippet.setTags(Arrays.asList(videoTags.split(",")));
+        }
+
+        VideoStatus status = new VideoStatus();
+        status.setPrivacyStatus("public");
+
+        Video video = new Video();
+        video.setSnippet(snippet);
+        video.setStatus(status);
+
+        InputStreamContent mediaContent =
+                new InputStreamContent("video/*", new FileInputStream(localFile));
+
+        mediaContent.setLength(localFile.length());
+
+        YouTube.Videos.Insert request =
+                youtube.videos().insert("snippet,status", video, mediaContent);
+
+        MediaHttpUploader uploader = request.getMediaHttpUploader();
+        uploader.setDirectUploadEnabled(false);
+
+        uploader.setProgressListener((MediaHttpUploaderProgressListener) u -> {
+            logger.info("Upload: " + u.getUploadState() + " (" + u.getProgress() + ")");
+        });
 
         boolean uploadSuccess = false;
 
         try {
-            // Upload to YouTube
-            Video returnedVideo = request.execute();
-            logger.info("Upload completed! Video ID: {}", returnedVideo.getId());
+            Video uploaded = request.execute();
+            logger.info("✔ Upload complete! Video ID: " + uploaded.getId());
             uploadSuccess = true;
 
         } catch (Exception e) {
-            logger.error("Upload failed! File will NOT be moved.", e);
+            logger.error("❌ Upload failed!");
+            e.printStackTrace();
         }
 
+        // Move file only after success
         if (uploadSuccess) {
-            try {
-                // Move file in Drive only after successful upload
-                drive.files().update(selectedFile.getId(), null)
-                        .setAddParents(postedFolderId)
-                        .setRemoveParents(contentFolderId)
-                        .execute();
-                logger.info("Moved file to posted folder in Drive.");
+            drive.files().update(selectedFile.getId(), null)
+                    .setAddParents(postedFolderId)
+                    .setRemoveParents(contentFolderId)
+                    .execute();
 
-            } catch (Exception e) {
-                logger.error("Failed to move file in Drive after successful upload.", e);
-            }
+            logger.info("📁 File moved to posted folder.");
         }
 
         // Delete local file
-		if (localFile.exists() && localFile.delete()) {
-			logger.info("Deleted local file: {}", localFile.getAbsolutePath());
-		} else {
-			logger.warn("Failed to delete local file: {}", localFile.getAbsolutePath());
-		}
+        localFile.delete();
+        logger.info("🗑 Deleted local temp file.");
 
-		logger.info("=== Task Completed ===");
-	}
+        logger.info("✅ Task Completed.");
+    }
 }
