@@ -3,13 +3,13 @@ name: Scheduled Drive->YouTube Upload
 on:
   schedule:
     # 07:30 AM IST → 02:30 AM UTC
-    #- cron: '0 2 * * *'
+    - cron: '0 2 * * *'
     # 12:00 PM IST → 07:00 AM UTC
-    #- cron: '30 6 * * *'
+    - cron: '30 6 * * *'
     # 04:30 PM IST → 11:00 AM UTC
-    #- cron: '0 11 * * *'
+    - cron: '0 11 * * *'
     # 08:30 PM IST → 03:00 PM UTC
-    #- cron: '0 15 * * *'
+    - cron: '0 15 * * *'
   workflow_dispatch:   # allows manual trigger
 
 jobs:
