@@ -40,21 +40,23 @@ jobs:
           CONTENT_FOLDER_ID: ${{ secrets.CONTENT_FOLDER_ID }}
           POSTED_FOLDER_ID: ${{ secrets.POSTED_FOLDER_ID }}
           APPLICATION_NAME: "YtUploadApplication-AviTech"
-          VIDEO_TITLE: "Facts That Will Make You Question Everything 😳| @Factvibes19"
-          VIDEO_DESC: "Welcome to FactsVibe, where every second comes with a mind-blowing fact you never knew you needed!
-                      Today’s video is packed with weird, shocking, funny, and unbelievable facts that will keep you hooked till the very end.
+          VIDEO_TITLE: "Fact Vibes: Mind-Blowing Truths in 10 Seconds| @Factvibes19"
+          VIDEO_DESC: "Welcome to Fact Vibes — the home of fast, addictive, and unbelievable facts made for the curious minds of America.
+We bring you 10-second reality checks, shocking truths, science bites, history twists, human psychology insights, and weird facts you NEVER learned in school.
 
-                      🔥 Don’t skip — the last fact will blow your mind!
-                      🔥 Comment “FACTS!” if you want a Part 2.
-                      🔥 Subscribe for daily viral facts!
-                      
-                      What’s inside this video?
-                      ✔ Facts that sound fake but are true
-                      ✔ Crazy science & psychology facts
-                      ✔ Funny facts to make you laugh
-                      ✔ Weird real-life facts you’ve never heard before
-                      ✔ Quick knowledge boosters for your day
-                      
+If you love mind-blowing facts, mystery moments, AI visuals, and quick knowledge, you’re in the right place.
+
+Our content includes:
+🔥 Science facts that challenge what you believe
+🧠 Psychology truths that hit hard
+🌎 Rare history facts Americans aren’t taught
+🐾 Strange animal behaviors explained
+⚡ Unbelievable everyday facts that feel unreal
+
+Subscribe if you enjoy fast knowledge with vibes, mystery, and truth.
+New videos drop daily.
+Stay curious, stay sharp — stay vibed.
+
                       Stay curious. Stay vibing. Stay FACTS! ⚡
                       #FactsVibe"
           VIDEO_TAGS: "facts, interesting facts, amazing facts, unbelievable facts, mind blowing facts, shocking facts, fact shorts"
