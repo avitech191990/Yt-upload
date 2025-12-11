@@ -17,6 +17,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Randomize minute (0–59) within the scheduled hour
+        run: |
+          # generate random minute 0..59
+          MIN=$(( RANDOM % 60 ))
+          echo "Random minute: $MIN"
+          echo "Sleeping for $MIN minute(s) to randomize start time..."
+          sleep $(( MIN * 60 ))
+
       - name: Checkout code
         uses: actions/checkout@v4
 
