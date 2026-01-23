@@ -27,6 +27,9 @@ public class YtUploadApplication {
 		// ✅ Force temp files into workspace
 		System.setProperty("java.io.tmpdir", "/mnt/tmp");
 		Files.createDirectories(Path.of("/mnt/tmp"));
+		System.out.println("🧪 TMPDIR env       = " + System.getenv("TMPDIR"));
+		System.out.println("🧪 java.io.tmpdir  = " + System.getProperty("java.io.tmpdir"));
+
 
 		SpringApplication.run(YtUploadApplication.class, args);
 		//new YtUploadApplication().runUploader();
