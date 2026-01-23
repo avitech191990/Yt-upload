@@ -30,6 +30,11 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+      - name: 🧹 Clean workspace
+        run: |
+            rm -rf downloads audios tmp output || true
+            df -h    
+
       - name: 🎥 Install FFmpeg
         run: |
             sudo apt-get update
