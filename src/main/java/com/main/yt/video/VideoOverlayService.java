@@ -86,21 +86,21 @@ public class VideoOverlayService {
                     "-y",
                     "-loglevel", "error",
 
-                    // inputs
                     "-i", video.getAbsolutePath(),
                     "-i", textPng.getAbsolutePath(),
                     "-i", logoPng.getAbsolutePath(),
+
                     "-stream_loop", "-1",
                     "-i", audio.getAbsolutePath(),
 
-                    // filters
                     "-filter_complex", filter,
 
-                    // mapping
                     "-map", "[vout]",
                     "-map", "[aout]",
 
-                    // 🔽 LOWER DISK & MEMORY USAGE (ADD HERE)
+                    // 🔽 MEMORY-SAFE SETTINGS
+                    "-threads", "1",
+                    "-max_muxing_queue_size", "1024",
                     "-c:v", "libx264",
                     "-preset", "veryfast",
                     "-pix_fmt", "yuv420p",
@@ -111,9 +111,8 @@ public class VideoOverlayService {
                     output.getAbsolutePath()
             );
 
-
-
-
+            // 🔥 FORCE TEMP DIR
+            pb.environment().put("TMPDIR", "/mnt/tmp");
 
             // 🔥 THIS IS CRITICAL
             pb.redirectErrorStream(true);

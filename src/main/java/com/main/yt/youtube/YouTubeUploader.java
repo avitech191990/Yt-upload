@@ -19,25 +19,33 @@ public class YouTubeUploader {
 
     public void upload(java.io.File videoFile) throws Exception {
 
+
+        String title = System.getenv("VIDEO_TITLE");
+        String description = System.getenv("VIDEO_DESC");
+        String tagsCsv = System.getenv("VIDEO_TAGS");
+
         VideoSnippet snippet = new VideoSnippet();
-        snippet.setTitle(System.getenv("VIDEO_TITLE"));
-        snippet.setDescription(System.getenv("VIDEO_DESC"));
-        snippet.setTags(List.of("shorts", "automation", "quotes"));
+        snippet.setTitle(title != null ? title : "Auto short");
+
+        snippet.setDescription(description != null ? description : "");
+        if (tagsCsv != null && !tagsCsv.isEmpty()) {
+            snippet.setTags(List.of(tagsCsv.split(",")));
+        }
         snippet.setCategoryId("22");
 
         VideoStatus status = new VideoStatus();
         status.setPrivacyStatus("public");
 
-        Video video = new Video();
-        video.setSnippet(snippet);
-        video.setStatus(status);
+        Video videoMetadata = new Video();
+        videoMetadata.setSnippet(snippet);
+        videoMetadata.setStatus(status);
 
         InputStreamContent media =
                 new InputStreamContent("video/*", new FileInputStream(videoFile));
         media.setLength(videoFile.length());
 
         youtube.videos()
-                .insert("snippet,status", video, media)
+                .insert("snippet,status", videoMetadata, media)
                 .execute();
     }
 }
