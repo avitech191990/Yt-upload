@@ -35,9 +35,6 @@ public class VideoOverlayService {
             File audio
     ) throws Exception {
 
-        // ✅ CLEAN OLD TEMP FILES (VERY IMPORTANT)
-        clean("tmp");
-
         //String fontName = fonts.get(random.nextInt(fonts.size()));
         TextPosition pos = positions.get(random.nextInt(positions.size()));
         String fontName = config.getFonts()
@@ -133,6 +130,8 @@ public class VideoOverlayService {
             // ✅ MUST cleanup
             if (textPng != null && textPng.exists()) textPng.delete();
             if (logoPng != null && logoPng.exists()) logoPng.delete();
+            // ✅ CLEAN OLD TEMP FILES (VERY IMPORTANT)
+            clean("tmp");
         }
     }
 
