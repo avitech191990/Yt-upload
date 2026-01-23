@@ -3,7 +3,8 @@ video:
   # INPUT / OUTPUT
   # ============================
   inputDir: /Users/avinashramakkapet/Documents/videos
-  outputDir: /Users/avinashramakkapet/Documents/videos/output
+  #outputDir: /Users/avinashramakkapet/Documents/videos/output
+  outputDir: output
 
   # ============================
   # LOGO SETTINGS

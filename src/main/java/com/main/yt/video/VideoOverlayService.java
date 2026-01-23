@@ -43,8 +43,12 @@ public class VideoOverlayService {
         System.out.println("Text PNG size: " + textPng.length());
         File logoPng = loadLogoFromResources(config.logoPath);
 
-        File output = new File(config.outputDir, video.getName());
-        output.getParentFile().mkdirs();
+        //local run
+        //File output = new File(config.outputDir, video.getName());
+
+        File outputDir = new File("output");
+        outputDir.mkdirs();
+        File output = new File(outputDir, video.getName());
 
         String overlayY = switch (pos) {
             case MIDDLE -> "(H-h)/2";
@@ -110,6 +114,9 @@ public class VideoOverlayService {
         System.out.println("✅ Processed video path  : " + output.getAbsolutePath());
         System.out.println("✅ Exists after FFmpeg   : " + output.exists());
         System.out.println("✅ Size (bytes)          : " + output.length());
+        System.out.println("OUTPUT PATH = " + output.getAbsolutePath());
+        System.out.println("OUTPUT DIR EXISTS = " + output.getParentFile().exists());
+
 
 
         return output;
