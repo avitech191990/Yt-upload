@@ -27,12 +27,6 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
-      - name: 🎲 Random human-like delay (2–10 minutes)
-        run: |
-          DELAY=$((120 + RANDOM % 480))
-          echo "Sleeping for $DELAY seconds..."
-          sleep $DELAY
-
       - name: 🚀 Run uploader
         env:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
