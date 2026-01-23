@@ -24,6 +24,10 @@ public class YouTubeUploader {
         String description = System.getenv("VIDEO_DESC");
         String tagsCsv = System.getenv("VIDEO_TAGS");
 
+        System.out.println("🎬 TITLE = [" + title + "]");
+        System.out.println("📝 DESC  = [" + description + "]");
+        System.out.println("🏷 TAGS  = [" + tagsCsv + "]");
+
         VideoSnippet snippet = new VideoSnippet();
         snippet.setTitle(title != null ? title : "Auto short");
 
