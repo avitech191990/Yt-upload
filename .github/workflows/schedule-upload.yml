@@ -42,6 +42,13 @@ jobs:
         run: |
           rm -rf downloads audios tmp output || true
           df -h
+
+      - name: Prepare folders
+        run: |
+          mkdir -p tmp
+          mkdir -p output
+          mkdir -p downloads
+          mkdir -p audios
     
 
       - name: 🎥 Install FFmpeg
@@ -64,6 +71,13 @@ jobs:
       - name: 🛠 Build project
         run: ./mvnw -q clean package
 
+      - name: 🔍 Debug paths
+        run: |
+          echo "Workspace: $GITHUB_WORKSPACE"
+          ls -la
+          ls -la tmp || true
+          ls -la output || true      
+
       - name: 🚀 Run uploader
         env:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
@@ -76,6 +90,9 @@ jobs:
 
           AUDIO_FOLDER_ID: ${{ secrets.AUDIO_FOLDER_ID }}
           QUOTE_FOLDER_ID: ${{ secrets.QUOTE_FOLDER_ID }}
+
+          # 🔥 CRITICAL FOR FFMPEG & TEMP FILES
+          TMPDIR: ${{ github.workspace }}/tmp
 
         run: |
           java -jar target/yt-upload-0.0.1-SNAPSHOT.jar
