@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Random;
 
 @Component
 public class DriveClient {
@@ -74,6 +75,28 @@ public class DriveClient {
                 .create(metadata, media)
                 .setFields("id,name")
                 .execute();
+    }
+
+    public File pickRandomVideo(String folderId) throws Exception {
+
+        String q = "'" + folderId + "' in parents and mimeType contains 'video/' and trashed=false";
+
+        FileList list = drive.files().list()
+                .setQ(q)
+                .setFields("files(id,name)")
+                .execute();
+
+        List<File> files = list.getFiles();
+
+        if (files == null || files.isEmpty()) {
+            throw new IllegalStateException("❌ No videos found in Drive folder: " + folderId);
+        }
+
+        File selected = files.get(new Random().nextInt(files.size()));
+
+        System.out.println("🎲 Random video selected: " + selected.getName());
+
+        return selected;
     }
 
 }

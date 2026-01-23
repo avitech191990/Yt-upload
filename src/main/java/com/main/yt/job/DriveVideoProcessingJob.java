@@ -1,6 +1,7 @@
 package com.main.yt.job;
 
 import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.FileList;
 import com.main.yt.drive.DriveClient;
 import com.main.yt.video.VideoOverlayService;
 import com.main.yt.youtube.YouTubeUploader;
@@ -73,16 +74,15 @@ public class DriveVideoProcessingJob {
         System.out.println("✅ Audios: " + audios.size());
 
         int quoteIndex = readQuoteIndex();
+        if (quoteIndex >= quotes.size()) {
+            System.out.println("⚠️ No more quotes left. Stopping.");
+            return;
+        }
 
         // ============================
         // 3️⃣ PROCESS VIDEOS
         // ============================
-        for (File v : videos) {
-
-            if (quoteIndex >= quotes.size()) {
-                System.out.println("⚠️ No more quotes left. Stopping.");
-                break;
-            }
+        File v = drive.pickRandomVideo(System.getenv("CONTENT_FOLDER_ID"));
 
             String quote = quotes.get(quoteIndex % quotes.size());
             quoteIndex++;
@@ -114,7 +114,7 @@ public class DriveVideoProcessingJob {
             // ============================
             // 5️⃣ MOVE VIDEO IN DRIVE
             // ============================
-            /*drive.move(
+            /* drive.move(
                     v.getId(),
                     videoFolderId,
                     postedFolderId
@@ -133,7 +133,7 @@ public class DriveVideoProcessingJob {
             );
 
             processed.delete();
-        }
+
 
         System.out.println("✅ Job completed successfully.");
     }

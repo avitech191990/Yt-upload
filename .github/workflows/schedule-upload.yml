@@ -91,6 +91,10 @@ jobs:
           AUDIO_FOLDER_ID: ${{ secrets.AUDIO_FOLDER_ID }}
           QUOTE_FOLDER_ID: ${{ secrets.QUOTE_FOLDER_ID }}
 
+          VIDEO_TITLE: ${{ secrets.VIDEO_TITLE }}
+          VIDEO_DESCRIPTION: ${{ secrets.VIDEO_DESCRIPTION }}
+          VIDEO_TAGS: ${{ secrets.VIDEO_TAGS }}
+
 
         run: |
           mkdir -p tmp
