@@ -64,17 +64,17 @@ public class VideoOverlayService {
         File filterFile = File.createTempFile("filter-", ".txt");
         filterFile.deleteOnExit();
 
-        String filterScript =
-                "[1:v]format=rgba[text];\n" +
-                "[2:v]scale=" + config.getLogoWidth() + ":-1[logo];\n" +
-                "[0:v][text]overlay=(W-w)/2:" + overlayY + "[v1];\n" +
-                "[v1][logo]overlay=20:H-h-170[vout];\n" +
-                "[3:a]volume=1.0[aout];\n";
+        String filter =
+                "[1:v]format=rgba[text];" +
+                "[2:v]scale=" + config.getLogoWidth() + ":-1[logo];" +
+                "[0:v][text]overlay=(W-w)/2:" + overlayY + "[v1];" +
+                "[v1][logo]overlay=20:H-h-170[vout];" +
+                "[3:a]volume=1.0[aout]";
 
-        Files.writeString(filterFile.toPath(), filterScript);
+        Files.writeString(filterFile.toPath(), filter);
 
         System.out.println("===== FILTER SCRIPT =====");
-        System.out.println(filterScript);
+        System.out.println(filter);
         System.out.println("=========================");
 
 
@@ -82,15 +82,15 @@ public class VideoOverlayService {
                 ffmpegCmd,
                 "-y",
 
-                "-i", video.getAbsolutePath(),   // 0 video
-                "-i", textPng.getAbsolutePath(), // 1 text png
-                "-i", logoPng.getAbsolutePath(), // 2 logo
+                "-i", video.getAbsolutePath(),        // 0 video
+                "-i", textPng.getAbsolutePath(),      // 1 text PNG
+                "-i", logoPng.getAbsolutePath(),      // 2 logo
                 "-stream_loop", "-1",
-                "-i", audio.getAbsolutePath(),   // 3 bg audio
+                "-i", audio.getAbsolutePath(),        // 3 audio
 
-                "-an", // 🔥 REMOVE original video audio
+                "-an",                                // remove original audio
 
-                "-filter_complex_script", filterFile.getAbsolutePath(),
+                "-filter_complex", filter,
 
                 "-map", "[vout]",
                 "-map", "[aout]",
