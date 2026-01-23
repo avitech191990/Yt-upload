@@ -48,8 +48,9 @@ public class VideoOverlayService {
         //File output = new File(config.outputDir, video.getName());
         try {
             File outputDir = new File("output");
+
             if (!outputDir.exists()) {
-                boolean created = outputDir.getParentFile().mkdirs();
+                boolean created = outputDir.mkdirs();
                 System.out.println("📁 Output directory created: " + created);
             }
 
