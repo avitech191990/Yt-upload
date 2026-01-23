@@ -25,11 +25,13 @@ public class YtUploadApplication {
 	public static void main(String[] args) throws Exception {
 
 		// ✅ Force temp files into workspace
-		System.setProperty("java.io.tmpdir", "/mnt/tmp");
-		Files.createDirectories(Path.of("/mnt/tmp"));
-		System.out.println("🧪 TMPDIR env       = " + System.getenv("TMPDIR"));
-		System.out.println("🧪 java.io.tmpdir  = " + System.getProperty("java.io.tmpdir"));
-
+		String tmpDir = System.getProperty("java.io.tmpdir");
+		System.out.println("✅ Using java.io.tmpdir = " + tmpDir);
+		try {
+			Files.createDirectories(Path.of(tmpDir));
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to create temp dir: " + tmpDir, e);
+		}
 
 		SpringApplication.run(YtUploadApplication.class, args);
 		//new YtUploadApplication().runUploader();
