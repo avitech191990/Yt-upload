@@ -56,21 +56,17 @@ public class VideoOverlayService {
             case MIDDLE_BOTTOM -> "(H-h)/2+220";
         };
 
-        String filter =
-                // force text image format
-                "[1:v]format=rgba[text];" +
+        File filterFile = File.createTempFile("filter-", ".txt");
+        filterFile.deleteOnExit();
 
-                        // scale logo
-                        "[2:v]scale=" + config.logoWidth + ":-1[logo];" +
+        String filterScript =
+                "[1:v]format=rgba[text]\n" +
+                        "[2:v]scale=" + config.getLogoWidth() + ":-1[logo]\n" +
+                        "[0:v][text]overlay=(W-w)/2:" + overlayY + "[v1]\n" +
+                        "[v1][logo]overlay=20:H-h-170[vout]\n" +
+                        "[3:a]volume=1.0[aout]\n";
 
-                        // overlay text
-                        "[0:v][text]overlay=(W-w)/2:" + overlayY + "[v1];" +
-
-                        // overlay logo
-                        "[v1][logo]overlay=20:H-h-170[vout];" +
-
-                        // background audio
-                        "[3:a]volume=1.0[aout]";
+        Files.writeString(filterFile.toPath(), filterScript);
 
 
         ProcessBuilder pb = new ProcessBuilder(
@@ -83,7 +79,7 @@ public class VideoOverlayService {
                 "-stream_loop", "-1",
                 "-i", audio.getAbsolutePath(),    // 3 audio
 
-                "-filter_complex", filter,
+                "-filter_complex_script", filterFile.getAbsolutePath(),
 
                 "-map", "[vout]",
                 "-map", "[aout]",
@@ -95,6 +91,7 @@ public class VideoOverlayService {
 
                 output.getAbsolutePath()
         );
+
 
 
         // 🔥 THIS IS CRITICAL
@@ -111,12 +108,14 @@ public class VideoOverlayService {
             System.err.println(String.join(" ", pb.command()));
             throw new RuntimeException("FFmpeg failed for " + video.getName());
         }
+
+        System.out.println("🎯 Text position chosen: " + pos);
+        System.out.println("🎯 Overlay Y expression: " + overlayY);
         System.out.println("✅ Processed video path  : " + output.getAbsolutePath());
         System.out.println("✅ Exists after FFmpeg   : " + output.exists());
         System.out.println("✅ Size (bytes)          : " + output.length());
         System.out.println("OUTPUT PATH = " + output.getAbsolutePath());
         System.out.println("OUTPUT DIR EXISTS = " + output.getParentFile().exists());
-
 
 
         return output;
