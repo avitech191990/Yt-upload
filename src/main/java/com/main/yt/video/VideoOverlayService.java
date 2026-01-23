@@ -84,6 +84,7 @@ public class VideoOverlayService {
             ProcessBuilder pb = new ProcessBuilder(
                     "ffmpeg",
                     "-y",
+                    "-loglevel", "error",
                     "-i", video.getAbsolutePath(),
                     "-i", textPng.getAbsolutePath(),
                     "-i", logoPng.getAbsolutePath(),
@@ -101,6 +102,7 @@ public class VideoOverlayService {
 
 
 
+
             // 🔥 THIS IS CRITICAL
             pb.redirectErrorStream(true);
             pb.inheritIO();
@@ -110,9 +112,7 @@ public class VideoOverlayService {
             // 🔥 READ ALL OUTPUT
             //textPng.delete();
 
-            if (exit != 0) {
-                System.err.println("❌ FFmpeg failed. Command:");
-                System.err.println(String.join(" ", pb.command()));
+            if (exit != 0 && !output.exists()) {
                 throw new RuntimeException("FFmpeg failed for " + video.getName());
             }
 
