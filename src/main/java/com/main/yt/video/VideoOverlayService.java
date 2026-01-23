@@ -53,34 +53,44 @@ public class VideoOverlayService {
         };
 
         String filter =
-                // scale logo
-                "[2:v]scale=" + config.logoWidth + ":-1[logo];" +
-                        // text overlay
-                        "[0:v][1:v]overlay=(W-w)/2:" + overlayY + "[v1];" +
-                        // logo overlay
-                        "[v1][logo]overlay=20:H-h-170[vout];" +
-                        // background audio
-                        "[3:a]volume=" + config.bgVolume + "[aout]";
+                // force text image format
+                "[1:v]format=rgba[text];" +
 
+                        // scale logo
+                        "[2:v]scale=" + config.logoWidth + ":-1[logo];" +
+
+                        // overlay text
+                        "[0:v][text]overlay=(W-w)/2:" + overlayY + "[v1];" +
+
+                        // overlay logo
+                        "[v1][logo]overlay=20:H-h-170[vout];" +
+
+                        // background audio
+                        "[3:a]volume=1.0[aout]";
 
 
         ProcessBuilder pb = new ProcessBuilder(
                 ffmpegCmd,
                 "-y",
-                "-i", video.getAbsolutePath(),   // 0 video
-                "-i", textPng.getAbsolutePath(), // 1 text png
-                "-i", logoPng.getAbsolutePath(), // 2 logo
+
+                "-i", video.getAbsolutePath(),    // 0 video
+                "-i", textPng.getAbsolutePath(),  // 1 text
+                "-i", logoPng.getAbsolutePath(),  // 2 logo
                 "-stream_loop", "-1",
-                "-i", audio.getAbsolutePath(),                     // 3 bg music
+                "-i", audio.getAbsolutePath(),    // 3 audio
+
                 "-filter_complex", filter,
+
                 "-map", "[vout]",
                 "-map", "[aout]",
+
                 "-c:v", "libx264",
+                "-pix_fmt", "yuv420p",
                 "-c:a", "aac",
                 "-shortest",
+
                 output.getAbsolutePath()
         );
-
 
 
         // 🔥 THIS IS CRITICAL
@@ -93,6 +103,8 @@ public class VideoOverlayService {
         //textPng.delete();
 
         if (exit != 0) {
+            System.err.println("❌ FFmpeg failed. Command:");
+            System.err.println(String.join(" ", pb.command()));
             throw new RuntimeException("FFmpeg failed for " + video.getName());
         }
         System.out.println("✅ Processed video path  : " + output.getAbsolutePath());
