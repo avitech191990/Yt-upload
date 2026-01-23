@@ -37,8 +37,6 @@ public class VideoOverlayService {
 
         // ✅ CLEAN OLD TEMP FILES (VERY IMPORTANT)
         clean("tmp");
-        clean("downloads");
-        clean("audios");
 
         //String fontName = fonts.get(random.nextInt(fonts.size()));
         TextPosition pos = positions.get(random.nextInt(positions.size()));
