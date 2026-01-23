@@ -53,7 +53,7 @@ jobs:
           APPLICATION_NAME: ${{ secrets.APPLICATION_NAME }}
 
           CONTENT_FOLDER_ID: ${{ secrets.CONTENT_FOLDER_ID }}
-          PROCESSED_FOLDER_ID: ${{ secrets.PROCESSED_FOLDER_ID }}
+          PROCESSED_FOLDER_ID: ${{ secrets.POSTED_FOLDER_ID }}
 
           AUDIO_FOLDER_ID: ${{ secrets.AUDIO_FOLDER_ID }}
           QUOTE_FOLDER_ID: ${{ secrets.QUOTE_FOLDER_ID }}
