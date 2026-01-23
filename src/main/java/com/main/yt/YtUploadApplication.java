@@ -1,50 +1,34 @@
 package com.main.yt;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.googleapis.media.MediaHttpUploader;
-import com.google.api.client.googleapis.media.MediaHttpUploaderProgressListener;
-import com.google.api.client.http.InputStreamContent;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
-import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.Video;
-import com.google.api.services.youtube.model.VideoSnippet;
-import com.google.api.services.youtube.model.VideoStatus;
+import com.main.yt.video.OverlayConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Random;
-
 @SpringBootApplication
+@EnableConfigurationProperties(OverlayConfig.class)
 @EnableScheduling
 public class YtUploadApplication {
 
 	private static final Logger logger = LoggerFactory.getLogger(YtUploadApplication.class);
 
 
-	private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-	private static final NetHttpTransport HTTP_TRANSPORT = new NetHttpTransport();
+	//private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+	//private static final NetHttpTransport HTTP_TRANSPORT = new NetHttpTransport();
 
 	public static void main(String[] args) throws Exception {
 
 		SpringApplication.run(YtUploadApplication.class, args);
-		new YtUploadApplication().runUploader();
+		//new YtUploadApplication().runUploader();
 		// For local scheduled run, uncomment below:
 		//SpringApplication.run(YtUploadApplication.class, args);
 	}
 
 	// Extracted uploader logic
-	public void runUploader() throws Exception {
+	/*public void runUploader() throws Exception {
 
 		logger.info("=== Starting Drive -> YouTube Upload Task ===");
 
@@ -179,5 +163,5 @@ public class YtUploadApplication {
 		}
 
 		logger.info("=== Task Completed ===");
-	}
+	}*/
 }

@@ -1,0 +1,57 @@
+video:
+  # ============================
+  # INPUT / OUTPUT
+  # ============================
+  inputDir: /Users/avinashramakkapet/Documents/videos
+  outputDir: /Users/avinashramakkapet/Documents/videos/output
+
+  # ============================
+  # LOGO SETTINGS
+  # ============================
+  logoPath: classpath:assets/logo.png
+  logoWidth: 220   # logo width in pixels
+
+  # ============================
+  # BACKGROUND AUDIO (RANDOMIZED)
+  # ============================
+  bgAudios:
+    - "/Users/avinashramakkapet/Documents/videos/The Grey Room _ Golden Palms.mp3"
+    - "/Users/avinashramakkapet/Documents/videos/Precious Girl - Ryan Stasik, Kanika Moore.mp3"
+    - "/Users/avinashramakkapet/Documents/videos/Taking in The Changes - Everet Almond.mp3"
+    # you can add more later
+    # - "/Users/.../music2.mp3"
+    # - "/Users/.../music3.mp3"
+
+  bgVolume: 0.25   # 25% volume (recommended)
+
+  # ============================
+  # TEXT / QUOTES (RANDOMIZED)
+  # ============================
+  quotes:
+    - "I don’t give respect where none is shown. Call it ego if you want; I call it self-respect."
+    - "Discipline beats motivation when motivation fades."
+    - "Silence is better than explaining to people who don’t listen."
+    - "Your mindset decides your future."
+
+  # ============================
+  # FONT SETTINGS (RANDOMIZED)
+  # ============================
+  fonts:
+    - SansSerif
+    - Serif
+    - Poppins
+    - Montserrat
+    - Playfair Display
+    # If you want Poppins specifically, install it system-wide
+    # ASS/PNG uses system fonts, not file paths
+
+  fontSize: 48
+  safeTextWidth: 800   # leaves space on left & right
+
+  # ============================
+  # TEXT POSITIONS (RANDOMIZED)
+  # ============================
+  positions:
+    - MIDDLE
+    - MIDDLE_TOP
+    - MIDDLE_BOTTOM

@@ -1,78 +1,51 @@
-name: Scheduled Drive->YouTube Upload
+name: YouTube Shorts Auto Upload
 
 on:
   schedule:
-    # 07:30 AM IST → 02:30 AM UTC
-    - cron: '0 2 * * *'
-    # 12:00 PM IST → 07:00 AM UTC
-    - cron: '30 6 * * *'
-    # 04:30 PM IST → 11:00 AM UTC
-    - cron: '0 11 * * *'
-    # 08:30 PM IST → 03:00 PM UTC
-    - cron: '0 15 * * *'
-  workflow_dispatch:   # allows manual trigger
+    # 8:00 AM IST
+    - cron: "30 2 * * *"
+    # 2:00 PM IST
+    - cron: "30 8 * * *"
+    # 4:30 PM IST
+    - cron: "0 11 * * *"
+    # 9:00 PM IST
+    - cron: "30 15 * * *"
+
+  workflow_dispatch: # manual trigger (optional)
 
 jobs:
   upload:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Randomize minute (0–59) within the scheduled hour
-        run: |
-          # generate random minute 0..59
-          MIN=$(( RANDOM % 60 ))
-          echo "Random minute: $MIN"
-          echo "Sleeping for $MIN minute(s) to randomize start time..."
-          sleep $(( MIN * 60 ))
-
-      - name: Checkout code
+      - name: ⬇️ Checkout code
         uses: actions/checkout@v4
 
-      - name: Make mvnw executable
-        run: chmod +x mvnw
-
-      - name: Set up JDK 17
+      - name: ☕ Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: '17'
+          distribution: "temurin"
+          java-version: "17"
 
-      - name: Build project
-        run: ./mvnw clean package --batch-mode
+      - name: 🎲 Random human-like delay (2–10 minutes)
+        run: |
+          DELAY=$((120 + RANDOM % 480))
+          echo "Sleeping for $DELAY seconds..."
+          sleep $DELAY
 
-      - name: Run Drive->YouTube uploader
+      - name: 🚀 Run uploader
         env:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
           REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
+          APPLICATION_NAME: ${{ secrets.APPLICATION_NAME }}
+
           CONTENT_FOLDER_ID: ${{ secrets.CONTENT_FOLDER_ID }}
-          POSTED_FOLDER_ID: ${{ secrets.POSTED_FOLDER_ID }}
-          APPLICATION_NAME: "YtUploadApplication-AviTech"
-          VIDEO_TITLE: "Fact Vibes: Mind-Blowing Truths in 10 Seconds| @Factvibes19"
-          VIDEO_DESC: "Welcome to Fact Vibes — the home of fast, addictive, and unbelievable facts made for the curious minds of America.
-We bring you 10-second reality checks, shocking truths, science bites, history twists, human psychology insights, and weird facts you NEVER learned in school.
+          PROCESSED_FOLDER_ID: ${{ secrets.PROCESSED_FOLDER_ID }}
 
-If you love mind-blowing facts, mystery moments, AI visuals, and quick knowledge, you’re in the right place.
+          AUDIO_FOLDER_ID: ${{ secrets.AUDIO_FOLDER_ID }}
+          QUOTE_FOLDER_ID: ${{ secrets.QUOTE_FOLDER_ID }}
 
-Our content includes:
-🔥 Science facts that challenge what you believe
-🧠 Psychology truths that hit hard
-🌎 Rare history facts Americans aren’t taught
-🐾 Strange animal behaviors explained
-⚡ Unbelievable everyday facts that feel unreal
-
-Subscribe if you enjoy fast knowledge with vibes, mystery, and truth.
-New videos drop daily.
-Stay curious, stay sharp — stay vibed.
-
-                      Stay curious. Stay vibing. Stay FACTS! ⚡
-                      #FactsVibe"
-          VIDEO_TAGS: "facts, interesting facts, amazing facts, unbelievable facts, mind blowing facts, shocking facts, fact shorts"
-        run: java -jar target/yt-upload-0.0.1-SNAPSHOT.jar
-
-      - name: Upload logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: uploader-logs
-          path: logs/uploader.log
+        run: |
+          ./mvnw -q clean package
+          java -jar target/yt-upload-0.0.1-SNAPSHOT.jar
