@@ -66,10 +66,11 @@ public class VideoOverlayService {
 
         String filter =
                 "[1:v]format=rgba[text];" +
-                "[2:v]scale=" + config.getLogoWidth() + ":-1[logo];" +
-                "[0:v][text]overlay=(W-w)/2:" + overlayY + "[v1];" +
-                "[v1][logo]overlay=20:H-h-170[vout];" +
-                "[3:a]volume=1.0[aout]";
+                        "[2:v]scale=220:-1[logo];" +
+                        "[0:v][text]overlay=(W-w)/2:(H-h)/2-220[v1];" +
+                        "[v1][logo]overlay=20:H-h-170[vout];" +
+                        "[3:a]volume=1.0[aout]";
+
 
         Files.writeString(filterFile.toPath(), filter);
 
@@ -78,30 +79,52 @@ public class VideoOverlayService {
         System.out.println("=========================");
 
 
-        ProcessBuilder pb = new ProcessBuilder(
-                ffmpegCmd,
-                "-y",
+        List<String> command = new ArrayList<>();
+        command.add(ffmpegCmd);
+        command.add("-y");
 
-                "-i", video.getAbsolutePath(),        // 0 video
-                "-i", textPng.getAbsolutePath(),      // 1 text PNG
-                "-i", logoPng.getAbsolutePath(),      // 2 logo
-                "-stream_loop", "-1",
-                "-i", audio.getAbsolutePath(),        // 3 audio
+        command.add("-i");
+        command.add(video.getAbsolutePath());
 
-                "-an",                                // remove original audio
+        command.add("-i");
+        command.add(textPng.getAbsolutePath());
 
-                "-filter_complex", filter,
+        command.add("-i");
+        command.add(logoPng.getAbsolutePath());
 
-                "-map", "[vout]",
-                "-map", "[aout]",
+        command.add("-stream_loop");
+        command.add("-1");
 
-                "-c:v", "libx264",
-                "-pix_fmt", "yuv420p",
-                "-c:a", "aac",
-                "-shortest",
+        command.add("-i");
+        command.add(audio.getAbsolutePath());
 
-                output.getAbsolutePath()
-        );
+        command.add("-an");
+
+        command.add("-filter_complex");
+        command.add(filter); // 🔥 SINGLE ARGUMENT
+
+        command.add("-map");
+        command.add("[vout]");
+
+        command.add("-map");
+        command.add("[aout]");
+
+        command.add("-c:v");
+        command.add("libx264");
+
+        command.add("-pix_fmt");
+        command.add("yuv420p");
+
+        command.add("-c:a");
+        command.add("aac");
+
+        command.add("-shortest");
+
+        command.add(output.getAbsolutePath());
+
+        ProcessBuilder pb = new ProcessBuilder(command);
+        pb.redirectErrorStream(true);
+
 
         // 🔥 THIS IS CRITICAL
         pb.redirectErrorStream(true);
