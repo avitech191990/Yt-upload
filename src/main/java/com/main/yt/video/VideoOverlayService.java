@@ -47,8 +47,13 @@ public class VideoOverlayService {
         //File output = new File(config.outputDir, video.getName());
 
         File outputDir = new File("output");
-        outputDir.mkdirs();
+        if (!outputDir.exists()) {
+            boolean created = outputDir.mkdirs();
+            System.out.println("📁 Output directory created: " + created);
+        }
+
         File output = new File(outputDir, video.getName());
+
 
         String overlayY = switch (pos) {
             case MIDDLE -> "(H-h)/2";
@@ -77,11 +82,13 @@ public class VideoOverlayService {
                 ffmpegCmd,
                 "-y",
 
-                "-i", video.getAbsolutePath(),    // 0 video
-                "-i", textPng.getAbsolutePath(),  // 1 text
-                "-i", logoPng.getAbsolutePath(),  // 2 logo
+                "-i", video.getAbsolutePath(),   // 0 video
+                "-i", textPng.getAbsolutePath(), // 1 text png
+                "-i", logoPng.getAbsolutePath(), // 2 logo
                 "-stream_loop", "-1",
-                "-i", audio.getAbsolutePath(),    // 3 audio
+                "-i", audio.getAbsolutePath(),   // 3 bg audio
+
+                "-an", // 🔥 REMOVE original video audio
 
                 "-filter_complex_script", filterFile.getAbsolutePath(),
 
@@ -95,8 +102,6 @@ public class VideoOverlayService {
 
                 output.getAbsolutePath()
         );
-
-
 
         // 🔥 THIS IS CRITICAL
         pb.redirectErrorStream(true);
