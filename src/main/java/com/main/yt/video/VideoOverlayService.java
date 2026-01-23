@@ -5,6 +5,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,6 +35,11 @@ public class VideoOverlayService {
             File audio
     ) throws Exception {
 
+        // ✅ CLEAN OLD TEMP FILES (VERY IMPORTANT)
+        clean("tmp");
+        clean("downloads");
+        clean("audios");
+
         //String fontName = fonts.get(random.nextInt(fonts.size()));
         TextPosition pos = positions.get(random.nextInt(positions.size()));
         String fontName = config.getFonts()
@@ -45,112 +51,91 @@ public class VideoOverlayService {
 
         //local run
         //File output = new File(config.outputDir, video.getName());
+        try {
+            File outputDir = new File("output");
+            if (!outputDir.exists()) {
+                boolean created = outputDir.getParentFile().mkdirs();
+                System.out.println("📁 Output directory created: " + created);
+            }
 
-        File outputDir = new File("output");
-        if (!outputDir.exists()) {
-            boolean created = outputDir.mkdirs();
-            System.out.println("📁 Output directory created: " + created);
+            File output = new File(outputDir, video.getName());
+
+
+            String overlayY = switch (pos) {
+                case MIDDLE -> "(H-h)/2";
+                case MIDDLE_TOP -> "(H-h)/2-220";
+                case MIDDLE_BOTTOM -> "(H-h)/2+220";
+            };
+
+            File filterFile = File.createTempFile("filter-", ".txt");
+            filterFile.deleteOnExit();
+
+            String filter =
+                    "[1:v]format=rgba[text];" +
+                            "[2:v]scale=220:-1[logo];" +
+                            "[0:v][text]overlay=(W-w)/2:(H-h)/2-220[v1];" +
+                            "[v1][logo]overlay=20:H-h-170[vout];" +
+                            "[3:a]volume=1.0[aout]";
+
+
+            Files.writeString(filterFile.toPath(), filter);
+
+            System.out.println("===== FILTER SCRIPT =====");
+            System.out.println(filter);
+            System.out.println("=========================");
+
+
+            ProcessBuilder pb = new ProcessBuilder(
+                    "ffmpeg",
+                    "-y",
+                    "-i", video.getAbsolutePath(),
+                    "-i", textPng.getAbsolutePath(),
+                    "-i", logoPng.getAbsolutePath(),
+                    "-stream_loop", "-1",
+                    "-i", audio.getAbsolutePath(),
+                    "-filter_complex", filter,
+                    "-map", "[vout]",
+                    "-map", "[aout]",
+                    "-c:v", "libx264",
+                    "-pix_fmt", "yuv420p",
+                    "-c:a", "aac",
+                    "-shortest",
+                    output.getAbsolutePath()
+            );
+
+
+
+            // 🔥 THIS IS CRITICAL
+            pb.redirectErrorStream(true);
+            pb.inheritIO();
+            Process p = pb.start();
+            int exit = p.waitFor();
+
+            // 🔥 READ ALL OUTPUT
+            //textPng.delete();
+
+            if (exit != 0) {
+                System.err.println("❌ FFmpeg failed. Command:");
+                System.err.println(String.join(" ", pb.command()));
+                throw new RuntimeException("FFmpeg failed for " + video.getName());
+            }
+
+            System.out.println("🎯 Text position chosen: " + pos);
+            System.out.println("🎯 Overlay Y expression: " + overlayY);
+            System.out.println("✅ Processed video path  : " + output.getAbsolutePath());
+            System.out.println("✅ Exists after FFmpeg   : " + output.exists());
+            System.out.println("✅ Size (bytes)          : " + output.length());
+            System.out.println("OUTPUT PATH = " + output.getAbsolutePath());
+            System.out.println("OUTPUT DIR EXISTS = " + output.getParentFile().exists());
+
+
+            return output;
+        } finally {
+
+            // ✅ MUST cleanup
+            if (textPng != null && textPng.exists()) textPng.delete();
+            if (logoPng != null && logoPng.exists()) logoPng.delete();
         }
-
-        File output = new File(outputDir, video.getName());
-
-
-        String overlayY = switch (pos) {
-            case MIDDLE -> "(H-h)/2";
-            case MIDDLE_TOP -> "(H-h)/2-220";
-            case MIDDLE_BOTTOM -> "(H-h)/2+220";
-        };
-
-        File filterFile = File.createTempFile("filter-", ".txt");
-        filterFile.deleteOnExit();
-
-        String filter =
-                "[1:v]format=rgba[text];" +
-                        "[2:v]scale=220:-1[logo];" +
-                        "[0:v][text]overlay=(W-w)/2:(H-h)/2-220[v1];" +
-                        "[v1][logo]overlay=20:H-h-170[vout];" +
-                        "[3:a]volume=1.0[aout]";
-
-
-        Files.writeString(filterFile.toPath(), filter);
-
-        System.out.println("===== FILTER SCRIPT =====");
-        System.out.println(filter);
-        System.out.println("=========================");
-
-
-        List<String> command = new ArrayList<>();
-        command.add(ffmpegCmd);
-        command.add("-y");
-
-        command.add("-i");
-        command.add(video.getAbsolutePath());
-
-        command.add("-i");
-        command.add(textPng.getAbsolutePath());
-
-        command.add("-i");
-        command.add(logoPng.getAbsolutePath());
-
-        command.add("-stream_loop");
-        command.add("-1");
-
-        command.add("-i");
-        command.add(audio.getAbsolutePath());
-
-        command.add("-an");
-
-        command.add("-filter_complex");
-        command.add(filter); // 🔥 SINGLE ARGUMENT
-
-        command.add("-map");
-        command.add("[vout]");
-
-        command.add("-map");
-        command.add("[aout]");
-
-        command.add("-c:v");
-        command.add("libx264");
-
-        command.add("-pix_fmt");
-        command.add("yuv420p");
-
-        command.add("-c:a");
-        command.add("aac");
-
-        command.add("-shortest");
-
-        command.add(output.getAbsolutePath());
-
-        ProcessBuilder pb = new ProcessBuilder(command);
-        pb.redirectErrorStream(true);
-
-
-        // 🔥 THIS IS CRITICAL
-        pb.redirectErrorStream(true);
-        pb.inheritIO();
-        Process p = pb.start();
-        int exit = p.waitFor();
-
-        // 🔥 READ ALL OUTPUT
-        //textPng.delete();
-
-        if (exit != 0) {
-            System.err.println("❌ FFmpeg failed. Command:");
-            System.err.println(String.join(" ", pb.command()));
-            throw new RuntimeException("FFmpeg failed for " + video.getName());
-        }
-
-        System.out.println("🎯 Text position chosen: " + pos);
-        System.out.println("🎯 Overlay Y expression: " + overlayY);
-        System.out.println("✅ Processed video path  : " + output.getAbsolutePath());
-        System.out.println("✅ Exists after FFmpeg   : " + output.exists());
-        System.out.println("✅ Size (bytes)          : " + output.length());
-        System.out.println("OUTPUT PATH = " + output.getAbsolutePath());
-        System.out.println("OUTPUT DIR EXISTS = " + output.getParentFile().exists());
-
-
-        return output;
     }
 
     private File createTextImage(String text, String fontName) throws Exception {
@@ -237,6 +222,17 @@ public class VideoOverlayService {
 
         return tempLogo;
     }
+
+    private void clean(String dir) throws IOException {
+        Path p = Path.of(dir);
+        if (!Files.exists(p)) return;
+
+        Files.walk(p)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
+    }
+
 
 }
 
