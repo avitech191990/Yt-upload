@@ -60,13 +60,17 @@ public class VideoOverlayService {
         filterFile.deleteOnExit();
 
         String filterScript =
-                "[1:v]format=rgba[text]\n" +
-                        "[2:v]scale=" + config.getLogoWidth() + ":-1[logo]\n" +
-                        "[0:v][text]overlay=(W-w)/2:" + overlayY + "[v1]\n" +
-                        "[v1][logo]overlay=20:H-h-170[vout]\n" +
-                        "[3:a]volume=1.0[aout]\n";
+                "[1:v]format=rgba[text];\n" +
+                "[2:v]scale=" + config.getLogoWidth() + ":-1[logo];\n" +
+                "[0:v][text]overlay=(W-w)/2:" + overlayY + "[v1];\n" +
+                "[v1][logo]overlay=20:H-h-170[vout];\n" +
+                "[3:a]volume=1.0[aout];\n";
 
         Files.writeString(filterFile.toPath(), filterScript);
+
+        System.out.println("===== FILTER SCRIPT =====");
+        System.out.println(filterScript);
+        System.out.println("=========================");
 
 
         ProcessBuilder pb = new ProcessBuilder(
