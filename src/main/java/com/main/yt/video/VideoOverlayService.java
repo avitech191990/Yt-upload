@@ -85,20 +85,32 @@ public class VideoOverlayService {
                     "ffmpeg",
                     "-y",
                     "-loglevel", "error",
+
+                    // inputs
                     "-i", video.getAbsolutePath(),
                     "-i", textPng.getAbsolutePath(),
                     "-i", logoPng.getAbsolutePath(),
                     "-stream_loop", "-1",
                     "-i", audio.getAbsolutePath(),
+
+                    // filters
                     "-filter_complex", filter,
+
+                    // mapping
                     "-map", "[vout]",
                     "-map", "[aout]",
+
+                    // 🔽 LOWER DISK & MEMORY USAGE (ADD HERE)
                     "-c:v", "libx264",
+                    "-preset", "veryfast",
                     "-pix_fmt", "yuv420p",
+                    "-movflags", "+faststart",
                     "-c:a", "aac",
+
                     "-shortest",
                     output.getAbsolutePath()
             );
+
 
 
 

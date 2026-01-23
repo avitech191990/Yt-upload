@@ -30,10 +30,19 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+      - name: 🧹 Free disk space (critical)
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo apt-get clean
+          df -h
+
       - name: 🧹 Clean workspace
         run: |
-            rm -rf downloads audios tmp output || true
-            df -h    
+          rm -rf downloads audios tmp output || true
+          df -h
+    
 
       - name: 🎥 Install FFmpeg
         run: |

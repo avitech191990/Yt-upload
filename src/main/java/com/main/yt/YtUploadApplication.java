@@ -8,6 +8,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 @SpringBootApplication
 @EnableConfigurationProperties(OverlayConfig.class)
 @EnableScheduling
@@ -23,6 +26,7 @@ public class YtUploadApplication {
 
 		// ✅ Force temp files into workspace
 		System.setProperty("java.io.tmpdir", System.getProperty("user.dir") + "/tmp");
+		Files.createDirectories(Path.of("tmp"));
 
 		SpringApplication.run(YtUploadApplication.class, args);
 		//new YtUploadApplication().runUploader();
