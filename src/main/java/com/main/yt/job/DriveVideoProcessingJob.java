@@ -97,6 +97,11 @@ public class DriveVideoProcessingJob {
             java.io.File localVideo = drive.download(v, Path.of("downloads"));
             java.io.File localAudio = drive.download(audioDrive, Path.of("audios"));
 
+            System.out.println("🎥 Video exists : " + localVideo.exists());
+            System.out.println("🎵 Audio exists : " + localAudio.exists());
+            System.out.println("📄 Video path   : " + localVideo.getAbsolutePath());
+            System.out.println("🎵 Audio path   : " + localAudio.getAbsolutePath());
+
             java.io.File processed =
                     overlay.process(localVideo, quote, localAudio);
 
