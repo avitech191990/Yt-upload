@@ -2,16 +2,19 @@ name: YouTube Shorts Auto Upload
 
 on:
   schedule:
-    # 8:00 AM IST
+    # 8:00 AM IST → 02:30 UTC
     - cron: "30 2 * * *"
-    # 2:00 PM IST
+
+    # 2:00 PM IST → 08:30 UTC
     - cron: "30 8 * * *"
-    # 4:30 PM IST
+
+    # 4:30 PM IST → 11:00 UTC
     - cron: "0 11 * * *"
-    # 9:00 PM IST
+
+    # 9:00 PM IST → 15:30 UTC
     - cron: "30 15 * * *"
 
-  workflow_dispatch: # manual trigger (optional)
+  workflow_dispatch: # manual trigger for testing
 
 jobs:
   upload:
@@ -24,8 +27,23 @@ jobs:
       - name: ☕ Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: "temurin"
+          distribution: temurin
           java-version: "17"
+
+      - name: 🔓 Make mvnw executable
+        run: chmod +x mvnw
+
+      # ================================
+      # ❌ RANDOM DELAY (COMMENTED FOR TESTING)
+      # ================================
+      # - name: 🎲 Random human-like delay (2–10 minutes)
+      #   run: |
+      #     DELAY=$((120 + RANDOM % 480))
+      #     echo "Sleeping for $DELAY seconds..."
+      #     sleep $DELAY
+
+      - name: 🛠 Build project
+        run: ./mvnw -q clean package
 
       - name: 🚀 Run uploader
         env:
@@ -41,5 +59,4 @@ jobs:
           QUOTE_FOLDER_ID: ${{ secrets.QUOTE_FOLDER_ID }}
 
         run: |
-          ./mvnw -q clean package
           java -jar target/yt-upload-0.0.1-SNAPSHOT.jar
