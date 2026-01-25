@@ -68,10 +68,10 @@ public class VideoOverlayService {
 
             String filter =
                     "[1:v]format=rgba[text];" +
-                            "[2:v]scale=220:-1[logo];" +
+                            "[2:v]scale=" + config.logoWidth + ":-1[logo];" +
                             "[0:v][text]overlay=(W-w)/2:(H-h)/2-220[v1];" +
                             "[v1][logo]overlay=20:H-h-170[vout];" +
-                            "[3:a]volume=1.0[aout]";
+                            "[3:a]volume=" + config.bgVolume + "[aout]";
 
 
             Files.writeString(filterFile.toPath(), filter);
