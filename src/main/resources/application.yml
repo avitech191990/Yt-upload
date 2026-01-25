@@ -10,7 +10,7 @@ video:
   # LOGO SETTINGS
   # ============================
   logoPath: classpath:assets/logo.png
-  logoWidth: 220   # logo width in pixels
+  logoWidth: 140   # logo width in pixels
 
   # ============================
   # BACKGROUND AUDIO (RANDOMIZED)
