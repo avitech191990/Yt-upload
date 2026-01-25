@@ -43,6 +43,14 @@ video:
     - Poppins
     - Montserrat
     - Playfair Display
+    - Lato
+    - Merriweather
+    - Lora
+    - Anton
+    - Pacifico
+    - Cinzel
+    - Caveat
+    - Oswald
     # If you want Poppins specifically, install it system-wide
     # ASS/PNG uses system fonts, not file paths
 
