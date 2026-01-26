@@ -29,8 +29,7 @@ public class DriveVideoProcessingJob {
     public DriveVideoProcessingJob(
             DriveClient drive,
             VideoOverlayService overlay,
-            YouTubeUploader uploader,
-            DriveStateService stateService
+            YouTubeUploader uploader
     ) {
         this.drive = drive;
         this.overlay = overlay;
