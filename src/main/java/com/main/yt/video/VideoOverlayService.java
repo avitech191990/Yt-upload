@@ -69,8 +69,8 @@ public class VideoOverlayService {
             String filter =
                     "[1:v]format=rgba[text];" +
                             "[2:v]scale=" + config.logoWidth + ":-1[logo];" +
-                            "[0:v][text]overlay=(W-w)/2:(H-h)/2-220[v1];" +
-                            "[v1][logo]overlay=20:H-h-170[vout];" +
+                            "[0:v][text]overlay=(W-w)/2:" + overlayY + "[v1];" +
+                            "[v1][logo]overlay=100:H-h-2000[vout];" +
                             "[3:a]volume=" + config.bgVolume + "[aout]";
 
 
