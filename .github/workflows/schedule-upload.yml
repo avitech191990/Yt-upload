@@ -94,6 +94,7 @@ jobs:
           VIDEO_TITLE: ${{ secrets.VIDEO_TITLE }}
           VIDEO_DESC: ${{ secrets.VIDEO_DESC }}
           VIDEO_TAGS: ${{ secrets.VIDEO_TAGS }}
+          STATE_FOLDER_ID: ${{ secrets.STATE_FOLDER_ID }}
 
 
         run: |

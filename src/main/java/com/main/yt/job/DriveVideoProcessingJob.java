@@ -3,6 +3,7 @@ package com.main.yt.job;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import com.main.yt.drive.DriveClient;
+import com.main.yt.drive.DriveStateService;
 import com.main.yt.video.VideoOverlayService;
 import com.main.yt.youtube.YouTubeUploader;
 import org.springframework.stereotype.Component;
@@ -19,18 +20,29 @@ public class DriveVideoProcessingJob {
     private final VideoOverlayService overlay;
     private final YouTubeUploader uploader;
     private final Random random = new Random();
-    private static final Path QUOTE_INDEX_FILE = Path.of(".quote-index");
+    private final DriveStateService stateService;
+
+    String stateFolderId = System.getenv("STATE_FOLDER_ID");
+
 
 
     public DriveVideoProcessingJob(
             DriveClient drive,
             VideoOverlayService overlay,
-            YouTubeUploader uploader
+            YouTubeUploader uploader,
+            DriveStateService stateService
     ) {
         this.drive = drive;
         this.overlay = overlay;
         this.uploader = uploader;
+
+        // 🔹 Create DriveStateService once
+        this.stateService = new DriveStateService(
+                drive.getDrive(),      // Google Drive SDK object
+                stateFolderId
+        );
     }
+
 
     public void run() throws Exception {
 
@@ -73,20 +85,24 @@ public class DriveVideoProcessingJob {
         System.out.println("✅ Quotes: " + quotes.size());
         System.out.println("✅ Audios: " + audios.size());
 
-        int quoteIndex = readQuoteIndex();
+        //READ QUOTE INDEX (FROM DRIVE)
+        int quoteIndex = stateService.readQuoteIndex();
+
         if (quoteIndex >= quotes.size()) {
             System.out.println("⚠️ No more quotes left. Stopping.");
             return;
         }
 
         // ============================
+        // 4️⃣ PICK QUOTE
+        // ============================
+        String quote = quotes.get(quoteIndex);
+        System.out.println("🎯 Using quote index: " + quoteIndex);
+
+        // ============================
         // 3️⃣ PROCESS VIDEOS
         // ============================
         File v = drive.pickRandomVideo(System.getenv("CONTENT_FOLDER_ID"));
-
-            String quote = quotes.get(quoteIndex % quotes.size());
-            quoteIndex++;
-            saveQuoteIndex(quoteIndex);
 
             File audioDrive = audios.get(random.nextInt(audios.size()));
 
@@ -110,6 +126,12 @@ public class DriveVideoProcessingJob {
             // ============================
 
              uploader.upload(processed);
+
+            // ============================
+            // 5️⃣ AFTER SUCCESSFUL VIDEO POST
+            // ============================
+            stateService.saveQuoteIndex(quoteIndex + 1);
+            System.out.println("✅ Quote index updated to: " + (quoteIndex + 1));
 
             // ============================
             // 5️⃣ MOVE VIDEO IN DRIVE
@@ -150,23 +172,5 @@ public class DriveVideoProcessingJob {
         }
         return val;
     }
-
-    private int readQuoteIndex() {
-        try {
-            if (Files.exists(QUOTE_INDEX_FILE)) {
-                return Integer.parseInt(Files.readString(QUOTE_INDEX_FILE).trim());
-            }
-        } catch (Exception ignored) {}
-        return 0;
-    }
-
-    private void saveQuoteIndex(int index) {
-        try {
-            Files.writeString(QUOTE_INDEX_FILE, String.valueOf(index));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 
 }

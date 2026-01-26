@@ -21,6 +21,11 @@ public class DriveClient {
         this.drive = drive;
     }
 
+    public Drive getDrive() {
+        return this.drive;
+    }
+
+
     public List<File> listVideos(String folderId) throws Exception {
         String q = "'" + folderId + "' in parents and mimeType contains 'video/' and trashed=false";
 
