@@ -40,9 +40,10 @@ video:
   fonts:
     - SansSerif
     - Serif
-    - Poppins
-    - Montserrat
-    - Playfair Display
+    - Monospaced
+    - Dialog
+    - DejaVu Sans
+    - Liberation Sans
     # If you want Poppins specifically, install it system-wide
     # ASS/PNG uses system fonts, not file paths
 

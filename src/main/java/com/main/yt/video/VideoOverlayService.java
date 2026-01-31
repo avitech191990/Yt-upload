@@ -25,6 +25,16 @@ public class VideoOverlayService {
     private final Random random = new Random();
     private static final Path QUOTE_INDEX = Path.of(".quote-index");
     private final String ffmpegCmd = "ffmpeg";
+    private static final Color[] QUOTE_COLORS = {
+            Color.WHITE,
+            Color.YELLOW,
+            Color.CYAN,
+            Color.GREEN,
+            Color.ORANGE,
+            new Color(255, 105, 180), // Hot Pink
+            new Color(173, 216, 230), // Light Blue
+            new Color(255, 215, 0),   // Gold
+    };
 
     private final List<TextPosition> positions =
             List.of(TextPosition.MIDDLE, TextPosition.MIDDLE_TOP, TextPosition.MIDDLE_BOTTOM);
@@ -56,11 +66,10 @@ public class VideoOverlayService {
 
             File output = new File(outputDir, video.getName());
 
-
             String overlayY = switch (pos) {
-                case MIDDLE -> "(H-h)/2";
-                case MIDDLE_TOP -> "(H-h)/2-220";
-                case MIDDLE_BOTTOM -> "(H-h)/2+220";
+                case MIDDLE -> "H*0.20 - h/2";
+                case MIDDLE_TOP -> "(H-h)/2";
+                case MIDDLE_BOTTOM -> "H*0.45 - h/2";
             };
 
             File filterFile = File.createTempFile("filter-", ".txt");
@@ -172,7 +181,7 @@ public class VideoOverlayService {
                 RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
         g.setFont(font);
-        g.setColor(Color.WHITE);
+        g.setColor(QUOTE_COLORS[new Random().nextInt(QUOTE_COLORS.length)]);
 
         int y = padding + fm.getAscent();
         for (String line : lines) {
