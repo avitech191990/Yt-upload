@@ -62,11 +62,11 @@ jobs:
       # ================================
       # ❌ RANDOM DELAY (COMMENTED FOR TESTING)
       # ================================
-#      - name: 🎲 Random human-like delay (2–10 minutes)
-#        run: |
-#           DELAY=$((120 + RANDOM % 480))
-#           echo "Sleeping for $DELAY seconds..."
-#           sleep $DELAY
+      - name: 🎲 Random human-like delay (2–10 minutes)
+        run: |
+           DELAY=$((120 + RANDOM % 480))
+           echo "Sleeping for $DELAY seconds..."
+           sleep $DELAY
 
       - name: 🛠 Build project
         run: ./mvnw -q clean package
